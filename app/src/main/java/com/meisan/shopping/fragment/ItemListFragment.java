@@ -1,0 +1,108 @@
+package com.meisan.shopping.fragment;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.meisan.shopping.R;
+import com.meisan.shopping.adapter.ItemAdapter;
+
+import com.meisan.shopping.model.Item;
+
+public class ItemListFragment extends Fragment {
+    private RecyclerView recyclerView;
+    private ItemAdapter itemAdapter;
+    private List<Item> itemList;
+    private List<Item> filteredItemList;
+    private FloatingActionButton cartButton;
+    public static List<Item> cartItems = new ArrayList<>();
+    private Spinner categorySpinner;
+
+    public ItemListFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_item_list, container, false);
+        recyclerView = view.findViewById(R.id.recyclerView);
+        cartButton = view.findViewById(R.id.cartButton);
+        categorySpinner = view.findViewById(R.id.categorySpinner);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Sample items with categories
+        itemList = new ArrayList<>();
+        // Tech category
+        itemList.add(new Item("Laptop", 999.99, "Tech"));
+        itemList.add(new Item("Smartphone", 499.99, "Tech"));
+        itemList.add(new Item("Headphones", 79.99, "Tech"));
+        itemList.add(new Item("Tablet", 299.99, "Tech"));
+        // Clothing category
+        itemList.add(new Item("T-Shirt", 19.99, "Clothing"));
+        itemList.add(new Item("Jacket", 89.99, "Clothing"));
+        itemList.add(new Item("Sneakers", 59.99, "Clothing"));
+        // Home & Decor category
+        itemList.add(new Item("Table Lamp", 39.99, "Home & Decor"));
+        itemList.add(new Item("Area Rug", 129.99, "Home & Decor"));
+        itemList.add(new Item("Decorative Vase", 24.99, "Home & Decor"));
+
+        filteredItemList = new ArrayList<>(itemList);
+        itemAdapter = new ItemAdapter(filteredItemList, item -> {
+            cartItems.add(item);
+        });
+        recyclerView.setAdapter(itemAdapter);
+
+        // Set up category spinner
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item,
+                new String[]{"All", "Tech", "Clothing", "Home & Decor"});
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(spinnerAdapter);
+
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedCategory = parent.getItemAtPosition(position).toString();
+                filterItems(selectedCategory);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                filterItems("All");
+            }
+        });
+
+        cartButton.setOnClickListener(v -> {
+            NavController navController = NavHostFragment.findNavController(this);
+            navController.navigate(R.id.action_itemListFragment_to_cartFragment);
+        });
+
+        return view;
+    }
+
+    private void filterItems(String category) {
+        filteredItemList.clear();
+        if (category.equals("All")) {
+            filteredItemList.addAll(itemList);
+        } else {
+            for (Item item : itemList) {
+                if (item.getCategory().equals(category)) {
+                    filteredItemList.add(item);
+                }
+            }
+        }
+        itemAdapter.notifyDataSetChanged();
+    }
+}

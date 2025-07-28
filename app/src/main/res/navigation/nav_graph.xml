@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/itemListFragment">
+
+    <fragment
+        android:id="@+id/itemListFragment"
+        android:name="com.meisan.shopping.fragment.ItemListFragment">
+        <action
+            android:id="@+id/action_itemListFragment_to_cartFragment"
+            app:destination="@id/cartFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cartFragment"
+        android:name="com.meisan.shopping.fragment.CartFragment">
+        <action
+            android:id="@+id/action_cartFragment_to_checkoutFragment"
+            app:destination="@id/checkoutFragment">
+            <argument
+                android:name="cartTotal"
+                app:argType="float" />
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/checkoutFragment"
+        android:name="com.meisan.shopping.fragment.CheckoutFragment">
+        <argument
+            android:name="cartTotal"
+            app:argType="float"
+            android:defaultValue="0.0" />
+    </fragment>
+
+</navigation>

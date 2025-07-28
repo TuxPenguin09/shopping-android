@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "260272061721",
+    "project_id": "shoppingfinals1008",
+    "storage_bucket": "shoppingfinals1008.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260272061721:android:be64eea029a81a1dabd988",
+        "android_client_info": {
+          "package_name": "com.meisan.shopping"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR6VJbCVlzUYTlkWkf-We0R3upBPJs4Eg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
