@@ -2,11 +2,21 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/itemListFragment">
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.meisan.shopping.fragment.LoginFragment"
+        android:label="Login">
+        <action
+            android:id="@+id/action_loginFragment_to_itemListFragment"
+            app:destination="@id/itemListFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/itemListFragment"
-        android:name="com.meisan.shopping.fragment.ItemListFragment">
+        android:name="com.meisan.shopping.fragment.ItemListFragment"
+        android:label="Shop">
         <action
             android:id="@+id/action_itemListFragment_to_cartFragment"
             app:destination="@id/cartFragment" />
@@ -14,7 +24,8 @@
 
     <fragment
         android:id="@+id/cartFragment"
-        android:name="com.meisan.shopping.fragment.CartFragment">
+        android:name="com.meisan.shopping.fragment.CartFragment"
+        android:label="Cart">
         <action
             android:id="@+id/action_cartFragment_to_checkoutFragment"
             app:destination="@id/checkoutFragment">
@@ -26,7 +37,8 @@
 
     <fragment
         android:id="@+id/checkoutFragment"
-        android:name="com.meisan.shopping.fragment.CheckoutFragment">
+        android:name="com.meisan.shopping.fragment.CheckoutFragment"
+        android:label="Checkout">
         <argument
             android:name="cartTotal"
             app:argType="float"
