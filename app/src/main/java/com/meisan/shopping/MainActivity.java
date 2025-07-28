@@ -1,6 +1,7 @@
 package com.meisan.shopping;
 
 import android.os.Bundle;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -15,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private NavController navController;
+    private NavController.OnDestinationChangedListener authListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,41 +35,53 @@ public class MainActivity extends AppCompatActivity {
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.loginFragment, R.id.itemListFragment).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+
+        // Handle back button press using OnBackPressedCallback
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (navController.getCurrentDestination() != null &&
+                        navController.getCurrentDestination().getId() == R.id.itemListFragment) {
+                    // Exit the app instead of going to login
+                    finish();
+                } else {
+                    // Default back behavior for other screens
+                    if (!navController.navigateUp()) {
+                        finish();
+                    }
+                }
+            }
+        });
+
+        // Create a listener reference to remove it later
+        authListener = (controller, destination, arguments) -> {
+            // Remove this listener after first navigation to avoid loops
+            navController.removeOnDestinationChangedListener(authListener);
+
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+
+            if (currentUser != null) {
+                CartManager.getInstance(); // Initialize CartManager for authenticated user
+                // Navigate to shop if user is logged in and currently on login screen
+                if (destination.getId() == R.id.loginFragment) {
+                    navController.navigate(R.id.itemListFragment);
+                }
+            } else {
+                // User is not logged in, navigate to login if not already there
+                if (destination.getId() != R.id.loginFragment) {
+                    navController.navigate(R.id.loginFragment);
+                }
+            }
+        };
+
+        // Check authentication state and navigate after NavController is ready
+        navController.addOnDestinationChangedListener(authListener);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        // Check authentication state when activity starts
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        if (currentUser != null) {
-            CartManager.getInstance(); // Initialize CartManager for authenticated user
-            // Only navigate to shop if we're currently on login screen
-            if (navController.getCurrentDestination() != null &&
-                    navController.getCurrentDestination().getId() == R.id.loginFragment) {
-                navController.navigate(R.id.itemListFragment);
-            }
-        } else {
-            // User is not logged in, navigate to login
-            if (navController.getCurrentDestination() != null &&
-                    navController.getCurrentDestination().getId() != R.id.loginFragment) {
-                navController.navigate(R.id.loginFragment);
-            }
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        // Handle back button press from itemListFragment (shop screen)
-        if (navController.getCurrentDestination() != null &&
-                navController.getCurrentDestination().getId() == R.id.itemListFragment) {
-            // Exit the app instead of going to login
-            finish();
-        } else {
-            super.onBackPressed();
-        }
+        // Authentication check is now handled in onCreate after NavController is ready
     }
 
     @Override

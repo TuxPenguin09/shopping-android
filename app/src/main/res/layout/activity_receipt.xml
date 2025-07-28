@@ -15,11 +15,20 @@
         android:background="@android:color/white"
         android:padding="16dp" />
 
-    <Button
-        android:id="@+id/shareButton"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Share Receipt"
-        android:layout_marginTop="16dp" />
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/shareButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Share Receipt"
+            android:layout_marginEnd="8dp" />
+
+    </LinearLayout>
 
 </LinearLayout>

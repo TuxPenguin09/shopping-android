@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,6 +19,7 @@ import com.meisan.shopping.adapter.CartAdapter;
 import com.meisan.shopping.model.Item;
 import com.meisan.shopping.utils.CartManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CartFragment extends Fragment implements CartManager.CartUpdateListener {
@@ -43,11 +45,32 @@ public class CartFragment extends Fragment implements CartManager.CartUpdateList
         updateTotal();
 
         checkoutButton.setOnClickListener(v -> {
+            List<Item> cartItems1 = CartManager.getInstance().getCartItems();
+
+            // Check if cart is empty
+            if (cartItems1.isEmpty()) {
+                Toast.makeText(getContext(), "Your cart is empty. Add items before checkout.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             double total = CartManager.getInstance().getTotalPrice();
+
+            // Convert Item objects to strings for navigation
+            ArrayList<String> cartItemStrings = new ArrayList<>();
+            for (Item item : cartItems1) {
+                cartItemStrings.add(item.getName() + " - $" + String.format("%.2f", item.getPrice()));
+            }
+
             CartFragmentDirections.ActionCartFragmentToCheckoutFragment action =
                     CartFragmentDirections.actionCartFragmentToCheckoutFragment((float) total);
+
+            // Pass cart items as argument
+            Bundle args = new Bundle();
+            args.putFloat("cart_total", (float) total);
+            args.putStringArrayList("cart_items", cartItemStrings);
+
             NavController navController = NavHostFragment.findNavController(this);
-            navController.navigate(action);
+            navController.navigate(R.id.action_cartFragment_to_checkoutFragment, args);
         });
 
         return view;
@@ -70,11 +93,23 @@ public class CartFragment extends Fragment implements CartManager.CartUpdateList
         if (cartAdapter != null) {
             cartAdapter.updateItems(items);
             updateTotal();
+            updateCheckoutButton();
         }
     }
 
     private void updateTotal() {
         double total = CartManager.getInstance().getTotalPrice();
         totalTextView.setText(String.format("Total: $%.2f", total));
+    }
+
+    private void updateCheckoutButton() {
+        List<Item> cartItems = CartManager.getInstance().getCartItems();
+        checkoutButton.setEnabled(!cartItems.isEmpty());
+
+        if (cartItems.isEmpty()) {
+            checkoutButton.setText("Cart is Empty");
+        } else {
+            checkoutButton.setText("Checkout");
+        }
     }
 }

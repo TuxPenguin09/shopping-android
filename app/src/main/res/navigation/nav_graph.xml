@@ -45,4 +45,10 @@
             android:defaultValue="0.0" />
     </fragment>
 
+    <action
+        android:id="@+id/action_checkoutFragment_to_itemListFragment"
+        app:destination="@id/itemListFragment"
+        app:popUpTo="@id/itemListFragment"
+        app:popUpToInclusive="false" />
+
 </navigation>
