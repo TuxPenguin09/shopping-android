@@ -12,7 +12,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
-    FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
+    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,23 +26,35 @@ public class MainActivity extends AppCompatActivity {
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
-        NavController navController = navHostFragment.getNavController();
+        navController = navHostFragment.getNavController();
 
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            navController.navigate(R.id.itemListFragment);
-        } else {
-            navController.navigate(R.id.loginFragment);
-        }
-
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+        // Set up AppBar configuration - exclude login from having back button
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.loginFragment, R.id.itemListFragment).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Check authentication state when activity starts
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        // Wait for NavController to be ready, then navigate
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            if (currentUser != null && destination.getId() == R.id.loginFragment) {
+                // User is logged in but on login screen, redirect to home
+                navController.navigate(R.id.itemListFragment);
+            } else if (currentUser == null && destination.getId() != R.id.loginFragment) {
+                // User is not logged in but not on login screen, redirect to login
+                navController.navigate(R.id.loginFragment);
+            }
+        });
+    }
+
+    @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = NavHostFragment.findNavController(
-                getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment));
         return navController.navigateUp() || super.onSupportNavigateUp();
     }
 }

@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.fragment.app.Fragment;  // Changed from android.app.Fragment
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.navigation.NavController;
@@ -36,7 +36,7 @@ public class CartFragment extends Fragment {
         checkoutButton = view.findViewById(R.id.checkoutButton);
         cartRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        cartAdapter = new CartAdapter(ItemListFragment.cartItems);
+        cartAdapter = new CartAdapter(ItemListFragment.cartItems, this::updateTotal);
         cartRecyclerView.setAdapter(cartAdapter);
 
         updateTotal();
