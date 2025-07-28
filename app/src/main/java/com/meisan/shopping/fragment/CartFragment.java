@@ -16,17 +16,16 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.meisan.shopping.R;
 import com.meisan.shopping.adapter.CartAdapter;
 import com.meisan.shopping.model.Item;
+import com.meisan.shopping.utils.CartManager;
 
-public class CartFragment extends Fragment {
+import java.util.List;
+
+public class CartFragment extends Fragment implements CartManager.CartUpdateListener {
 
     private RecyclerView cartRecyclerView;
     private CartAdapter cartAdapter;
     private TextView totalTextView;
     private Button checkoutButton;
-
-    public CartFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -34,20 +33,19 @@ public class CartFragment extends Fragment {
         cartRecyclerView = view.findViewById(R.id.cartRecyclerView);
         totalTextView = view.findViewById(R.id.totalTextView);
         checkoutButton = view.findViewById(R.id.checkoutButton);
+
         cartRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        cartAdapter = new CartAdapter(ItemListFragment.cartItems, this::updateTotal);
+        List<Item> cartItems = CartManager.getInstance().getCartItems();
+        cartAdapter = new CartAdapter(cartItems);
         cartRecyclerView.setAdapter(cartAdapter);
 
         updateTotal();
 
         checkoutButton.setOnClickListener(v -> {
-            float total = 0;
-            for (Item item : ItemListFragment.cartItems) {
-                total += item.getPrice();
-            }
+            double total = CartManager.getInstance().getTotalPrice();
             CartFragmentDirections.ActionCartFragmentToCheckoutFragment action =
-                    CartFragmentDirections.actionCartFragmentToCheckoutFragment(total);
+                    CartFragmentDirections.actionCartFragmentToCheckoutFragment((float) total);
             NavController navController = NavHostFragment.findNavController(this);
             navController.navigate(action);
         });
@@ -55,11 +53,28 @@ public class CartFragment extends Fragment {
         return view;
     }
 
-    private void updateTotal() {
-        double total = 0;
-        for (Item item : ItemListFragment.cartItems) {
-            total += item.getPrice();
+    @Override
+    public void onResume() {
+        super.onResume();
+        CartManager.getInstance().addCartUpdateListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        CartManager.getInstance().removeCartUpdateListener(this);
+    }
+
+    @Override
+    public void onCartUpdated(List<Item> items) {
+        if (cartAdapter != null) {
+            cartAdapter.updateItems(items);
+            updateTotal();
         }
+    }
+
+    private void updateTotal() {
+        double total = CartManager.getInstance().getTotalPrice();
         totalTextView.setText(String.format("Total: $%.2f", total));
     }
 }

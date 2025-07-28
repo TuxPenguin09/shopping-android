@@ -14,6 +14,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.meisan.shopping.R;
+import com.meisan.shopping.utils.CartManager;
 
 public class LoginFragment extends Fragment {
 
@@ -50,6 +51,7 @@ public class LoginFragment extends Fragment {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        CartManager.getInstance().reinitialize(); // Reinitialize for new user
                         NavController navController = NavHostFragment.findNavController(this);
                         navController.navigate(R.id.action_loginFragment_to_itemListFragment);
                     } else {
@@ -72,6 +74,7 @@ public class LoginFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(getContext(), "Account created successfully", Toast.LENGTH_SHORT).show();
+                        CartManager.getInstance().reinitialize(); // Initialize for new user
                         NavController navController = NavHostFragment.findNavController(this);
                         navController.navigate(R.id.action_loginFragment_to_itemListFragment);
                     } else {

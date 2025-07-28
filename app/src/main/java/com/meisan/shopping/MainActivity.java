@@ -9,6 +9,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.meisan.shopping.utils.CartManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Check authentication state when activity starts
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser != null) {
+            CartManager.getInstance(); // Initialize CartManager for authenticated user
+        }
 
         // Wait for NavController to be ready, then navigate
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {

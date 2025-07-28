@@ -10,18 +10,13 @@ import java.util.List;
 
 import com.meisan.shopping.R;
 import com.meisan.shopping.model.Item;
+import com.meisan.shopping.utils.CartManager;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
     private List<Item> cartItems;
-    private OnItemRemovedListener onItemRemovedListener;
 
-    public interface OnItemRemovedListener {
-        void onItemRemoved();
-    }
-
-    public CartAdapter(List<Item> cartItems, OnItemRemovedListener listener) {
+    public CartAdapter(List<Item> cartItems) {
         this.cartItems = cartItems;
-        this.onItemRemovedListener = listener;
     }
 
     @Override
@@ -41,12 +36,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                     .setTitle("Remove Item")
                     .setMessage("Do you want to remove " + item.getName() + " from cart?")
                     .setPositiveButton("Remove", (dialog, which) -> {
-                        cartItems.remove(position);
-                        notifyItemRemoved(position);
-                        notifyItemRangeChanged(position, cartItems.size());
-                        if (onItemRemovedListener != null) {
-                            onItemRemovedListener.onItemRemoved();
-                        }
+                        CartManager.getInstance().removeItem(position);
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
@@ -56,6 +46,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     @Override
     public int getItemCount() {
         return cartItems.size();
+    }
+
+    public void updateItems(List<Item> newItems) {
+        this.cartItems = newItems;
+        notifyDataSetChanged();
     }
 
     public static class CartViewHolder extends RecyclerView.ViewHolder {

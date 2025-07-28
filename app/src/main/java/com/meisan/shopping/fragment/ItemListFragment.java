@@ -29,6 +29,7 @@ import java.util.List;
 import com.meisan.shopping.R;
 import com.meisan.shopping.adapter.ItemAdapter;
 import com.meisan.shopping.model.Item;
+import com.meisan.shopping.utils.CartManager;
 
 public class ItemListFragment extends Fragment {
     private RecyclerView recyclerView;
@@ -36,7 +37,7 @@ public class ItemListFragment extends Fragment {
     private List<Item> itemList;
     private List<Item> filteredItemList;
     private FloatingActionButton cartButton;
-    public static List<Item> cartItems = new ArrayList<>();
+    //public static List<Item> cartItems = new ArrayList<>();
     private Spinner categorySpinner;
     private FirebaseFirestore db;
 
@@ -84,7 +85,7 @@ public class ItemListFragment extends Fragment {
         loadItemsFromFirestore();
 
         itemAdapter = new ItemAdapter(filteredItemList, item -> {
-            cartItems.add(item);
+            CartManager.getInstance().addItem(item);
             Toast.makeText(getContext(), item.getName() + " added to cart", Toast.LENGTH_SHORT).show();
         });
         recyclerView.setAdapter(itemAdapter);
