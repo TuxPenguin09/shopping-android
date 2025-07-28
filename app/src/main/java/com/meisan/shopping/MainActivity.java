@@ -44,18 +44,30 @@ public class MainActivity extends AppCompatActivity {
 
         if (currentUser != null) {
             CartManager.getInstance(); // Initialize CartManager for authenticated user
-        }
-
-        // Wait for NavController to be ready, then navigate
-        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            if (currentUser != null && destination.getId() == R.id.loginFragment) {
-                // User is logged in but on login screen, redirect to home
+            // Only navigate to shop if we're currently on login screen
+            if (navController.getCurrentDestination() != null &&
+                    navController.getCurrentDestination().getId() == R.id.loginFragment) {
                 navController.navigate(R.id.itemListFragment);
-            } else if (currentUser == null && destination.getId() != R.id.loginFragment) {
-                // User is not logged in but not on login screen, redirect to login
+            }
+        } else {
+            // User is not logged in, navigate to login
+            if (navController.getCurrentDestination() != null &&
+                    navController.getCurrentDestination().getId() != R.id.loginFragment) {
                 navController.navigate(R.id.loginFragment);
             }
-        });
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Handle back button press from itemListFragment (shop screen)
+        if (navController.getCurrentDestination() != null &&
+                navController.getCurrentDestination().getId() == R.id.itemListFragment) {
+            // Exit the app instead of going to login
+            finish();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
